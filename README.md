@@ -8,6 +8,8 @@
 
 本番運用可能なフル機能のセミナー管理システムです。Next.js 14、TypeScript、Prisma、PostgreSQLを使用して構築されています。
 
+🔗 **GitHub Repository**: [https://github.com/hamasyo222/Seminar-Web-System](https://github.com/hamasyo222/Seminar-Web-System)
+
 ## 🎯 主な機能
 
 ### 公開機能
@@ -303,19 +305,75 @@ npm run db:reset      # データベースリセット
 
 ## 🚢 デプロイ
 
+### GitHub Actions CI/CD
+
+このプロジェクトは、GitHub Actionsを使用した自動CI/CDパイプラインが設定されています。
+
+- **CI**: プッシュ時に自動でテスト、Lint、ビルドを実行
+- **CD**: mainブランチへのプッシュ時にVercelへ自動デプロイ
+
+必要なGitHub Secrets:
+- `VERCEL_TOKEN`: Vercelのアクセストークン
+- `VERCEL_ORG_ID`: VercelのOrganization ID
+- `VERCEL_PROJECT_ID`: VercelのProject ID
+- `DATABASE_URL`: 本番データベースのURL
+- `NEXTAUTH_SECRET`: NextAuthのシークレット
+
 ### Vercel
 
 ```bash
+# 1. Vercelプロジェクトを作成
 vercel
+
+# 2. 環境変数を設定（Vercel Dashboard）
+# DATABASE_URL, NEXTAUTH_SECRET, KOMOJU_API_KEY, etc.
+
+# 3. デプロイ
+vercel --prod
 ```
 
-環境変数をVercelダッシュボードで設定してください。
-
-### Docker（予定）
+### Docker
 
 ```bash
+# Dockerイメージをビルド
 docker build -t seminar-system .
-docker run -p 3000:3000 seminar-system
+
+# ローカルで実行
+docker run -p 3000:3000 \
+  -e DATABASE_URL="postgresql://..." \
+  -e NEXTAUTH_SECRET="..." \
+  seminar-system
+```
+
+### 本番環境の環境変数
+
+本番環境では、以下の環境変数を設定してください：
+
+```env
+# データベース
+DATABASE_URL="postgresql://user:password@host:5432/dbname"
+
+# 認証
+NEXTAUTH_SECRET="your-nextauth-secret"
+NEXTAUTH_URL="https://your-domain.com"
+
+# 決済（KOMOJU）
+KOMOJU_API_KEY="your-komoju-api-key"
+KOMOJU_WEBHOOK_SECRET="your-webhook-secret"
+
+# メール（SendGrid）
+SENDGRID_API_KEY="your-sendgrid-api-key"
+SENDGRID_FROM_EMAIL="noreply@your-domain.com"
+SENDGRID_FROM_NAME="セミナー事務局"
+
+# Zoom
+ZOOM_CLIENT_ID="your-zoom-client-id"
+ZOOM_CLIENT_SECRET="your-zoom-client-secret"
+ZOOM_REDIRECT_URI="https://your-domain.com/api/zoom/callback"
+
+# その他
+BASE_URL="https://your-domain.com"
+TIMEZONE="Asia/Tokyo"
 ```
 
 ## 🤝 コントリビューション
