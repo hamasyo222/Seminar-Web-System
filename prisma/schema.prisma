@@ -1,0 +1,556 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 管理者ユーザー
+model AdminUser {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  role            AdminRole @default(VIEWER)
+  isActive        Boolean   @default(true)
+  mfaEnabled      Boolean   @default(false)
+  mfaSecret       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // 監査ログ用
+  checkIns        CheckInLog[]
+
+  @@map("admin_users")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  ACCOUNTANT
+  VIEWER
+}
+
+// セミナー
+model Seminar {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  description     String
+  category        String
+  tags            String    // JSON array
+  imageUrl        String?
+  status          SeminarStatus @default(DRAFT)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions        Session[]
+  cancellationPolicy CancellationPolicy?
+
+  @@map("seminars")
+}
+
+enum SeminarStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// 開催回
+model Session {
+  id              String    @id @default(cuid())
+  seminarId       String
+  seminar         Seminar   @relation(fields: [seminarId], references: [id])
+  
+  title           String?   // セッション固有のタイトル（任意）
+  startAt         DateTime  // UTC保存、表示時にJST変換
+  endAt           DateTime
+  
+  format          SessionFormat
+  venue           String?   // オフライン会場
+  venueAddress    String?
+  onlineUrl       String?   // オンライン会議URL
+  
+  // Zoom連携
+  zoomType        ZoomType?
+  zoomId          String?
+  zoomPasscode    String?
+  
+  capacity        Int
+  status          SessionStatus @default(SCHEDULED)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  ticketTypes     TicketType[]
+  orders          Order[]
+
+  @@map("sessions")
+}
+
+enum SessionFormat {
+  OFFLINE
+  ONLINE
+  HYBRID
+}
+
+enum ZoomType {
+  MEETING
+  WEBINAR
+}
+
+enum SessionStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+// チケット種別
+model TicketType {
+  id              String    @id @default(cuid())
+  sessionId       String
+  session         Session   @relation(fields: [sessionId], references: [id])
+  
+  name            String    // 一般、学生、早割など
+  description     String?
+  price           Int       // 税込価格（JPY）
+  taxRate         Int       @default(10) // 税率（%）
+  stock           Int       // 在庫数
+  maxPerOrder     Int       @default(10) // 1注文あたりの最大購入数
+  
+  salesStartAt    DateTime? // 販売開始日時
+  salesEndAt      DateTime? // 販売終了日時
+  
+  sortOrder       Int       @default(0)
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  orderItems      OrderItem[]
+
+  @@map("ticket_types")
+}
+
+// 申込
+model Order {
+  id              String    @id @default(cuid())
+  orderNumber     String    @unique @default(cuid())
+  
+  sessionId       String
+  session         Session   @relation(fields: [sessionId], references: [id])
+  
+  // 申込者情報
+  email           String
+  name            String
+  nameKana        String?
+  phone           String?
+  company         String?
+  
+  // 金額
+  subtotal        Int       // 小計
+  tax             Int       // 消費税額
+  total           Int       // 合計金額
+  
+  // 決済情報
+  paymentMethod   PaymentMethod?
+  komojuSessionId String?   @unique
+  
+  status          OrderStatus @default(PENDING)
+  
+  // 領収書名義情報
+  invoiceRecipientType    InvoiceRecipientType?
+  invoiceCompanyName      String?
+  invoiceDepartment       String?
+  invoiceTitle            String?
+  invoiceHonorific        String?
+  invoiceNote             String?   // 但し書き
+  
+  notes           String?    // 備考
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  paidAt          DateTime?
+  cancelledAt     DateTime?
+
+  orderItems      OrderItem[]
+  participants    Participant[]
+  payments        Payment[]
+  refunds         Refund[]
+  invoices        Invoice[]
+
+  @@index([email])
+  @@index([sessionId])
+  @@index([komojuSessionId])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  KONBINI
+  PAYPAY
+  BANK_TRANSFER
+}
+
+enum InvoiceRecipientType {
+  INDIVIDUAL
+  COMPANY
+}
+
+// 注文明細
+model OrderItem {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  
+  ticketTypeId    String
+  ticketType      TicketType @relation(fields: [ticketTypeId], references: [id])
+  
+  quantity        Int
+  unitPrice       Int       // 単価（税込）
+  subtotal        Int       // 小計（税込）
+  
+  createdAt       DateTime  @default(now())
+
+  @@map("order_items")
+}
+
+// 参加者（代理申込対応）
+model Participant {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  
+  email           String
+  name            String
+  nameKana        String?
+  company         String?
+  
+  // 受付状態
+  attendanceStatus AttendanceStatus @default(NOT_CHECKED_IN)
+  checkedInAt     DateTime?
+  checkedInBy     String?   // 受付操作者
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Zoom登録情報
+  zoomRegistrations ZoomRegistration[]
+
+  // 重複防止
+  @@unique([orderId, email])
+  @@map("participants")
+}
+
+enum AttendanceStatus {
+  NOT_CHECKED_IN
+  CHECKED_IN
+  NO_SHOW
+}
+
+// 決済記録
+model Payment {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  
+  komojuPaymentId String    @unique
+  amount          Int
+  currency        String    @default("JPY")
+  status          PaymentStatus
+  method          PaymentMethod
+  
+  capturedAt      DateTime?
+  failedAt        DateTime?
+  metadata        Json?     // KOMOJU返却データ
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// 返金
+model Refund {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  
+  amount          Int
+  reason          String
+  status          RefundStatus @default(REQUESTED)
+  method          RefundMethod
+  
+  // 銀行振込返金用
+  bankName        String?
+  branchName      String?
+  accountType     String?
+  accountNumber   String?
+  accountHolder   String?
+  
+  komojuRefundId  String?   @unique
+  
+  requestedBy     String    // 管理者ID
+  processedBy     String?
+  
+  requestedAt     DateTime  @default(now())
+  processedAt     DateTime?
+  
+  @@map("refunds")
+}
+
+enum RefundStatus {
+  REQUESTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum RefundMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+}
+
+// キャンセルポリシー
+model CancellationPolicy {
+  id              String    @id @default(cuid())
+  seminarId       String    @unique
+  seminar         Seminar   @relation(fields: [seminarId], references: [id])
+  
+  name            String
+  description     String?
+  rulesJson       Json      // [{ daysBefore: number, refundRate: number }]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("cancellation_policies")
+}
+
+// KOMOJU Webhook イベント（冪等性管理）
+model KomojuEvent {
+  id              String    @id @default(cuid())
+  eventId         String    @unique // KOMOJU event ID
+  eventType       String    // payment.captured, payment.expired等
+  
+  payload         Json      // イベント全体
+  signature       String    // ヘッダーのHMAC署名
+  
+  processed       Boolean   @default(false)
+  processedAt     DateTime?
+  error           String?
+  retries         Int       @default(0)
+  
+  receivedAt      DateTime  @default(now())
+
+  @@index([eventType])
+  @@map("komoju_events")
+}
+
+// Zoom登録情報
+model ZoomRegistration {
+  id              String    @id @default(cuid())
+  participantId   String
+  participant     Participant @relation(fields: [participantId], references: [id])
+  
+  zoomType        ZoomType
+  zoomId          String    // Meeting/Webinar ID
+  registrantId    String    // Zoom registrant ID
+  joinUrl         String      
+  status          ZoomRegistrationStatus @default(PENDING)
+  
+  registeredAt    DateTime  @default(now())
+  error           String?   
+  @@unique([participantId, zoomId])
+  @@map("zoom_registrations")
+}
+
+enum ZoomRegistrationStatus {
+  PENDING
+  REGISTERED
+  FAILED
+}
+
+// Zoomトークン管理
+model ZoomToken {
+  id              String    @id @default(cuid())
+  accountEmail    String    @unique
+  
+  accessToken     String     // 暗号化して保存
+  refreshToken    String     // 暗号化して保存
+  expiresAt       DateTime
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("zoom_tokens")
+}
+
+// 領収書
+model Invoice {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  
+  invoiceNumber   String    @unique
+  issuedAt        DateTime  @default(now())
+  
+  // PDFパス or 内容
+  pdfUrl          String?
+  
+  isReissue       Boolean   @default(false)
+  reissueCount    Int       @default(0)
+  
+  createdAt       DateTime  @default(now())
+
+  @@map("invoices")
+}
+
+// メールテンプレート
+model EmailTemplate {
+  id              String    @id @default(cuid())
+  code            String    @unique // registration_confirmed, payment_completed等
+  name            String
+  subject         String
+  bodyHtml        String
+  bodyText        String      
+  variables       String    // JSON array of variable names
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("email_templates")
+}
+
+// メール送信ログ
+model EmailLog {
+  id              String    @id @default(cuid())
+  to              String    // JSON array
+  cc              String    // JSON array
+  bcc             String    // JSON array
+  
+  subject         String
+  templateCode    String?
+  
+  status          EmailStatus @default(PENDING)
+  sendgridId      String?   @unique
+  
+  error           String?     
+  sentAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([to])
+  @@map("email_logs")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  BOUNCED
+}
+
+// クーポン
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  name            String
+  
+  discountType    DiscountType
+  discountValue   Int       // 金額 or パーセント
+  
+  usageLimit      Int?      // 使用回数上限
+  usageCount      Int       @default(0)
+  
+  validFrom       DateTime
+  validUntil      DateTime
+  
+  // 適用条件
+  minAmount       Int?      // 最低購入金額
+  seminarIds      String    // JSON array of seminar IDs
+  
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("coupons")
+}
+
+enum DiscountType {
+  AMOUNT
+  PERCENTAGE
+}
+
+// 受付ログ（監査用）
+model CheckInLog {
+  id              String    @id @default(cuid())
+  participantId   String
+  orderId         String
+  sessionId       String
+  
+  action          CheckInAction
+  checkedInBy     String
+  checkedInUser   AdminUser @relation(fields: [checkedInBy], references: [id])
+  
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime  @default(now())
+
+  @@index([participantId])
+  @@index([sessionId])
+  @@map("check_in_logs")
+}
+
+enum CheckInAction {
+  CHECK_IN
+  UNDO_CHECK_IN
+}
+
+// ジョブ実行履歴
+model JobLog {
+  id              String    @id @default(cuid())
+  jobName         String    // reminder_24h, reminder_1h, unpaid_notice等
+  status          JobStatus
+  
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  
+  processedCount  Int       @default(0)
+  errorCount      Int       @default(0)
+  
+  details         Json?     // 詳細ログ
+  error           String?   
+  @@index([jobName, startedAt])
+  @@map("job_logs")
+}
+
+enum JobStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
