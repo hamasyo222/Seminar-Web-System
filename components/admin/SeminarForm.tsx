@@ -28,7 +28,7 @@ export default function SeminarForm({ seminar }: SeminarFormProps) {
     watch,
     setValue
   } = useForm<SeminarFormData>({
-    resolver: zodResolver(seminarSchema),
+    resolver: zodResolver(seminarSchema) as any,
     defaultValues: {
       slug: seminar?.slug || '',
       title: seminar?.title || '',

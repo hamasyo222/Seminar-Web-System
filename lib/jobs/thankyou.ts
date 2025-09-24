@@ -2,6 +2,7 @@ import { prisma } from '../prisma'
 import { sendEmail } from '../mail'
 import { formatJST } from '../date'
 import { logger } from '../logger'
+import { buildAbsoluteUrl, getBaseUrl } from '../url'
 
 // セミナー終了後のサンクスメール送信
 export async function sendThankYouEmails() {
@@ -31,6 +32,7 @@ export async function sendThankYouEmails() {
 
     let processedCount = 0
     let errorCount = 0
+    const baseUrl = getBaseUrl()
 
     for (const session of sessions) {
       // 実際に参加した人を取得
@@ -51,6 +53,9 @@ export async function sendThankYouEmails() {
 
       for (const participant of participants) {
         try {
+          const surveyUrl = buildAbsoluteUrl(`/survey?order=${participant.order.orderNumber}`, baseUrl)
+          const seminarsUrl = buildAbsoluteUrl('/seminars', baseUrl)
+
           // サンクスメール送信
           await sendEmail({
             to: [participant.email],
@@ -65,12 +70,12 @@ export async function sendThankYouEmails() {
 
 <h3>■ アンケートのお願い</h3>
 <p>今後のセミナー運営の参考にさせていただきたく、アンケートにご協力をお願いいたします。</p>
-<p><a href="${process.env.BASE_URL}/survey?order=${participant.order.orderNumber}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">アンケートに回答する</a></p>
+<p><a href="${surveyUrl}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">アンケートに回答する</a></p>
 
 <h3>■ 次回開催のご案内</h3>
 <p>今後も様々なセミナーを企画しております。<br>
 ぜひ次回もご参加いただけますと幸いです。</p>
-<p><a href="${process.env.BASE_URL}/seminars">開催予定のセミナーを見る</a></p>
+<p><a href="${seminarsUrl}">開催予定のセミナーを見る</a></p>
 
 <p>またお会いできることを楽しみにしております。</p>
 
@@ -86,12 +91,12 @@ ${participant.name} 様
 
 ■ アンケートのお願い
 今後のセミナー運営の参考にさせていただきたく、アンケートにご協力をお願いいたします。
-${process.env.BASE_URL}/survey?order=${participant.order.orderNumber}
+${surveyUrl}
 
 ■ 次回開催のご案内
 今後も様々なセミナーを企画しております。
 ぜひ次回もご参加いただけますと幸いです。
-${process.env.BASE_URL}/seminars
+${seminarsUrl}
 
 またお会いできることを楽しみにしております。
 

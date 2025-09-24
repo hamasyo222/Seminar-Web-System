@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { orderFormSchema } from '@/lib/validations'
 import { generateOrderNumber } from '@/utils'
 import { logger } from '@/lib/logger'
+import { createKomojuSession, toKomojuPaymentMethod } from '@/lib/komoju'
 import type { ApiResponse } from '@/types'
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       where: { id: data.sessionId },
       include: {
         ticketTypes: true,
+        seminar: true,
       },
     })
 
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     // 在庫チェック
     let totalQuantity = 0
     let totalAmount = 0
-    const ticketDetails = []
+    const ticketDetails: any[] = []
 
     for (const ticket of data.tickets) {
       const ticketType = session.ticketTypes.find(t => t.id === ticket.ticketTypeId)
@@ -176,49 +178,45 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     logger.info('Order created', { orderId: order.id, orderNumber: order.orderNumber })
 
     // KOMOJU決済セッション作成
-    const paymentResponse = await fetch(
-      `${process.env.BASE_URL}/api/checkout/session`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: order.id,
-          amount: order.total,
-          paymentMethod: order.paymentMethod,
-        }),
-      }
-    )
+    try {
+      const paymentMethod = order.paymentMethod ?? data.paymentMethod
 
-    if (!paymentResponse.ok) {
-      // 決済セッション作成に失敗した場合は注文をキャンセル
+      const komojuSession = await createKomojuSession({
+        amount: order.total,
+        paymentMethods: [toKomojuPaymentMethod(paymentMethod)],
+        externalOrderNum: order.orderNumber,
+        metadata: {
+          orderId: order.id,
+          seminarTitle: session.seminar?.title,
+          sessionId: order.sessionId,
+        },
+      })
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { komojuSessionId: komojuSession.id },
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          orderId: order.id,
+          paymentUrl: komojuSession.session_url,
+        },
+      })
+    } catch (error) {
       await prisma.order.update({
         where: { id: order.id },
         data: { status: 'CANCELLED' },
       })
 
-      logger.error('Failed to create KOMOJU session', { orderId: order.id })
-      
+      logger.error('Failed to create KOMOJU session', error, { orderId: order.id })
+
       return NextResponse.json(
         { success: false, error: '決済処理の開始に失敗しました' },
         { status: 500 }
       )
     }
-
-    const paymentData = await paymentResponse.json()
-
-    // KOMOJUセッションIDを保存
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { komojuSessionId: paymentData.data.sessionId },
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        orderId: order.id,
-        paymentUrl: paymentData.data.sessionUrl,
-      },
-    })
   } catch (error) {
     logger.error('Error creating order', error)
     return NextResponse.json(

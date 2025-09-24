@@ -1,40 +1,47 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { formatJST } from '@/lib/date'
-import { formatCurrency, getOrderStatus } from '@/utils'
+import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { Calendar, Download, Mail, MapPin, QrCode, Tag, User, LogOut } from 'lucide-react'
+import Button from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import Alert from '@/components/ui/Alert'
+import { Spinner } from '@/components/ui/Loading'
+import QRCodeDisplay from '@/components/QRCodeDisplay'
 import { toast } from 'react-hot-toast'
-import { FileText, Download, Calendar, MapPin } from 'lucide-react'
 import type { OrderWithDetails } from '@/types'
 
 export default function AccountPage() {
-  const [email, setEmail] = useState('')
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
   const [orders, setOrders] = useState<OrderWithDetails[]>([])
-  const [loading, setLoading] = useState(false)
-  const [searched, setSearched] = useState(false)
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
+  const [email, setEmail] = useState('')
+  const [showQRCode, setShowQRCode] = useState<string | null>(null)
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!email) {
-      toast.error('メールアドレスを入力してください')
+  useEffect(() => {
+    // メールアドレスをlocalStorageから取得（簡易的な実装）
+    const storedEmail = localStorage.getItem('userEmail')
+    if (!storedEmail) {
+      router.push('/account/login')
       return
     }
+    setEmail(storedEmail)
+    fetchOrders(storedEmail)
+  }, [router])
 
+  const fetchOrders = async (userEmail: string) => {
     setLoading(true)
-    
     try {
-      const response = await fetch(`/api/account/orders?email=${encodeURIComponent(email)}`)
+      const response = await fetch(`/api/account/orders?email=${encodeURIComponent(userEmail)}`)
       const data = await response.json()
 
       if (data.success) {
         setOrders(data.data)
-        setSearched(true)
-        if (data.data.length === 0) {
-          toast.error('申込履歴が見つかりませんでした')
-        }
       } else {
-        toast.error(data.error || '検索に失敗しました')
+        toast.error('注文情報の取得に失敗しました')
       }
     } catch (error) {
       toast.error('エラーが発生しました')
@@ -43,180 +50,269 @@ export default function AccountPage() {
     }
   }
 
-  const handleDownloadInvoice = async (orderId: string, orderNumber: string) => {
+  const handleDownloadInvoice = async (orderId: string) => {
     try {
       const response = await fetch(`/api/account/invoice/${orderId}`)
       
-      if (!response.ok) {
-        throw new Error('領収書のダウンロードに失敗しました')
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `invoice-${orderId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        toast.success('領収書をダウンロードしました')
+      } else {
+        toast.error('領収書のダウンロードに失敗しました')
       }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `invoice_${orderNumber}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-
-      toast.success('領収書をダウンロードしました')
     } catch (error) {
-      toast.error('領収書のダウンロードに失敗しました')
+      toast.error('エラーが発生しました')
     }
   }
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">マイページ</h1>
+  const handleShowQRCode = (participantId: string) => {
+    setShowQRCode(participantId)
+  }
 
-      {/* メールアドレス入力 */}
+  const handleLogout = () => {
+    localStorage.removeItem('userEmail')
+    router.push('/account/login')
+  }
+
+  const now = new Date()
+  const upcomingOrders = orders.filter(order => 
+    order.status === 'PAID' && new Date(order.session.startAt) >= now
+  )
+  const pastOrders = orders.filter(order => 
+    order.status === 'PAID' && new Date(order.session.startAt) < now
+  )
+
+  const displayOrders = activeTab === 'upcoming' ? upcomingOrders : pastOrders
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      PENDING: { label: '支払待ち', variant: 'warning' as const },
+      PAID: { label: '支払済み', variant: 'success' as const },
+      CANCELLED: { label: 'キャンセル', variant: 'danger' as const },
+      REFUNDED: { label: '返金済み', variant: 'info' as const },
+      EXPIRED: { label: '期限切れ', variant: 'default' as const }
+    }
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING
+    return <Badge variant={config.variant} size="sm">{config.label}</Badge>
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* ヘッダー */}
       <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">申込履歴の確認</h2>
-        <form onSubmit={handleSearch} className="flex gap-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="登録したメールアドレスを入力"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+              <User className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <h1 className="text-2xl font-bold text-gray-900">マイページ</h1>
+              <p className="text-sm text-gray-600">{email}</p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
           >
-            {loading ? '検索中...' : '検索'}
-          </button>
-        </form>
+            <LogOut className="w-4 h-4 mr-2" />
+            ログアウト
+          </Button>
+        </div>
       </div>
 
-      {/* 申込履歴 */}
-      {searched && (
+      {/* タブ */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'upcoming'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            開催予定 ({upcomingOrders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('past')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'past'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            過去の参加 ({pastOrders.length})
+          </button>
+        </nav>
+      </div>
+
+      {/* 注文一覧 */}
+      {displayOrders.length === 0 ? (
+        <Alert variant="info">
+          {activeTab === 'upcoming' 
+            ? '開催予定のセミナーはありません。' 
+            : '過去に参加したセミナーはありません。'}
+        </Alert>
+      ) : (
         <div className="space-y-6">
-          {orders.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <p className="text-gray-500">申込履歴が見つかりませんでした</p>
-            </div>
-          ) : (
-            <>
-              <h2 className="text-xl font-semibold text-gray-900">
-                申込履歴（{orders.length}件）
-              </h2>
-              {orders.map((order) => (
-                <div key={order.id} className="bg-white rounded-lg shadow overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {order.session.seminar.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          注文番号: {order.orderNumber}
-                        </p>
-                      </div>
-                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                        order.status === 'PAID'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'PENDING'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'CANCELLED'
-                          ? 'bg-gray-100 text-gray-800'
-                          : order.status === 'REFUNDED'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {getOrderStatus(order.status)}
-                      </span>
+          {displayOrders.map((order) => (
+            <div key={order.id} className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {order.session.seminar.title}
+                      </h3>
+                      <span className="ml-3">{getStatusBadge(order.status)}</span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {formatJST(order.session.startAt)}
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                        {format(new Date(order.session.startAt), 'yyyy年MM月dd日 HH:mm', { locale: ja })}
+                        〜
+                        {format(new Date(order.session.endAt), 'HH:mm', { locale: ja })}
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        {order.session.venue || 'オンライン'}
+
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                        {order.session.format === 'ONLINE' 
+                          ? 'オンライン開催' 
+                          : order.session.venue || '会場未定'}
+                      </div>
+
+                      <div className="flex items-center">
+                        <Tag className="w-4 h-4 mr-2 text-gray-400" />
+                        注文番号: {order.orderNumber}
                       </div>
                     </div>
 
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">参加者</span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {order.participants.length}名
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">合計金額</span>
-                        <span className="text-lg font-semibold text-gray-900">
-                          {formatCurrency(order.total)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">申込日</span>
-                        <span className="text-sm text-gray-900">
-                          {formatJST(order.createdAt, 'YYYY/MM/DD')}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 参加者リスト */}
-                    <div className="mt-4 border-t pt-4">
+                    {/* 参加者一覧 */}
+                    <div className="mt-4">
                       <h4 className="text-sm font-medium text-gray-900 mb-2">参加者</h4>
-                      <div className="space-y-1">
-                        {order.participants.map((participant, index) => (
-                          <div key={participant.id} className="text-sm text-gray-600">
-                            {index + 1}. {participant.name}
-                            {participant.email !== order.email && ` (${participant.email})`}
-                            {participant.attendanceStatus === 'CHECKED_IN' && (
-                              <span className="ml-2 text-green-600">✓ 受付済み</span>
+                      <div className="space-y-2">
+                        {order.participants.map((participant) => (
+                          <div key={participant.id} className="flex items-center justify-between text-sm">
+                            <div className="flex items-center">
+                              <User className="w-4 h-4 mr-2 text-gray-400" />
+                              <span>{participant.name}</span>
+                              {participant.attendanceStatus === 'CHECKED_IN' && (
+                                <Badge variant="success" size="sm" className="ml-2">
+                                  チェックイン済み
+                                </Badge>
+                              )}
+                            </div>
+                            {activeTab === 'upcoming' && order.session.format !== 'ONLINE' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleShowQRCode(participant.id)}
+                              >
+                                <QrCode className="w-4 h-4" />
+                              </Button>
                             )}
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* アクション */}
-                    {order.status === 'PAID' && (
-                      <div className="mt-6 flex justify-end space-x-4">
-                        <button
-                          onClick={() => handleDownloadInvoice(order.id, order.orderNumber)}
-                          className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                    {/* オンライン参加URL */}
+                    {order.session.format === 'ONLINE' && order.session.onlineUrl && activeTab === 'upcoming' && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900 mb-1">
+                          オンライン参加URL
+                        </p>
+                        <a
+                          href={order.session.onlineUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800 underline"
                         >
-                          <FileText className="w-4 h-4 mr-2" />
-                          領収書
-                        </button>
-                        {order.session.format === 'ONLINE' && order.participants.some(p => 
-                          p.zoomRegistrations?.some(zr => zr.status === 'REGISTERED')
-                        ) && (
-                          <button className="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100">
-                            <Download className="w-4 h-4 mr-2" />
-                            参加URL確認
-                          </button>
-                        )}
+                          {order.session.onlineUrl}
+                        </a>
                       </div>
                     )}
                   </div>
+
+                  <div className="ml-6 flex-shrink-0">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleDownloadInvoice(order.id)}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      領収書
+                    </Button>
+                  </div>
                 </div>
-              ))}
-            </>
-          )}
+              </div>
+
+              {/* キャンセルポリシー */}
+              {activeTab === 'upcoming' && (
+                <div className="px-6 py-4 bg-gray-50 border-t">
+                  <p className="text-xs text-gray-600">
+                    キャンセルポリシーについては、各セミナーページをご確認ください。
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 注意事項 */}
-      <div className="mt-12 bg-gray-50 rounded-lg p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">ご注意事項</h3>
-        <ul className="text-sm text-gray-600 space-y-1">
-          <li>• 領収書は支払完了後にダウンロード可能です</li>
-          <li>• キャンセルをご希望の場合は、各セミナーのキャンセルポリシーをご確認の上、お問い合わせください</li>
-          <li>• オンライン参加URLは、開催前日と1時間前にメールでもお送りします</li>
-          <li>• ご不明な点がございましたら、お気軽にお問い合わせください</li>
-        </ul>
-      </div>
+      {/* QRコードモーダル */}
+      {showQRCode && (() => {
+        const participant = orders
+          .flatMap(o => o.participants)
+          .find(p => p.id === showQRCode)
+        const order = orders.find(o => 
+          o.participants.some(p => p.id === showQRCode)
+        )
+        
+        return participant && order ? (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4">チェックイン用QRコード</h3>
+              <div className="flex justify-center mb-4">
+                <QRCodeDisplay
+                  participantId={participant.id}
+                  sessionId={order.session.id}
+                  participantName={participant.name}
+                />
+              </div>
+              <p className="text-sm text-gray-600 text-center mb-4">
+                受付でこのQRコードをご提示ください
+              </p>
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={() => setShowQRCode(null)}
+              >
+                閉じる
+              </Button>
+            </div>
+          </div>
+        ) : null
+      })()}
     </div>
   )
 }

@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
 import type { ApiResponse, OrderWithDetails } from '@/types'
 
-const searchSchema = z.object({
-  email: z.string().email()
-})
-
-export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<OrderWithDetails[]>>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<ApiResponse<OrderWithDetails[]>>> {
   try {
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')
 
     if (!email) {
@@ -19,24 +16,20 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Or
       )
     }
 
-    // バリデーション
-    const validationResult = searchSchema.safeParse({ email })
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: '有効なメールアドレスを入力してください' },
-        { status: 400 }
-      )
-    }
-
-    // 注文履歴を取得
+    // メールアドレスで注文を検索
     const orders = await prisma.order.findMany({
       where: {
-        email: validationResult.data.email
+        email: email.toLowerCase(),
       },
       include: {
         session: {
           include: {
-            seminar: true
+            seminar: {
+              include: {
+                cancellationPolicy: true
+              }
+            },
+            ticketTypes: true
           }
         },
         orderItems: {
@@ -49,9 +42,14 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Or
             zoomRegistrations: true
           }
         },
-        payments: true,
-        refunds: true,
-        invoices: true
+        payments: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        },
+        invoices: {
+          orderBy: { issuedAt: 'desc' },
+          take: 1
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -60,12 +58,12 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Or
 
     return NextResponse.json({
       success: true,
-      data: orders as OrderWithDetails[]
+      data: orders as any
     })
   } catch (error) {
     console.error('Error fetching orders:', error)
     return NextResponse.json(
-      { success: false, error: '注文履歴の取得に失敗しました' },
+      { success: false, error: '注文情報の取得に失敗しました' },
       { status: 500 }
     )
   }

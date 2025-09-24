@@ -5,6 +5,43 @@ import { seminarSchema } from '@/lib/validations'
 import { logger } from '@/lib/logger'
 import type { ApiResponse } from '@/types'
 
+export async function GET(_req: NextRequest): Promise<NextResponse> {
+  try {
+    await requireAuth()
+
+    const seminars = await prisma.seminar.findMany({
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        category: true,
+        status: true,
+        tags: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    const normalized = seminars.map((seminar) => {
+      try {
+        const parsedTags = seminar.tags ? JSON.parse(seminar.tags) : []
+        return { ...seminar, tags: Array.isArray(parsedTags) ? parsedTags : [] }
+      } catch {
+        return { ...seminar, tags: [] }
+      }
+    })
+
+    return NextResponse.json(normalized)
+  } catch (error) {
+    logger.error('Error fetching seminars', error)
+    return NextResponse.json(
+      { success: false, error: 'セミナーの取得に失敗しました' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
     const user = await requireAuth()
@@ -50,10 +87,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       data: {
         slug: data.slug,
         title: data.title,
-        description: data.description,
-        category: data.category,
+        description: data.description || '',
+        category: data.category || '',
         tags: JSON.stringify(data.tags),
-        imageUrl: data.imageUrl,
+        imageUrl: data.imageUrl || null,
         status: data.status
       }
     })

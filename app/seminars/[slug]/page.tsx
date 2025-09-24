@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { formatJST, formatDateRange } from '@/lib/date'
 import { formatCurrency, getSessionFormat, parseJsonSafe } from '@/utils'
 import Link from 'next/link'
-import { Calendar, MapPin, Users, Clock, Tag, AlertCircle } from 'lucide-react'
+import { Calendar, MapPin, Users, Clock, Tag, AlertCircle, ArrowLeft } from 'lucide-react'
 import type { SeminarWithDetails, CancellationRule } from '@/types'
 
 async function getSeminar(slug: string): Promise<SeminarWithDetails | null> {
@@ -26,6 +26,12 @@ async function getSeminar(slug: string): Promise<SeminarWithDetails | null> {
               sortOrder: 'asc',
             },
           },
+          orders: {
+            select: {
+              id: true,
+              status: true,
+            },
+          },
           _count: {
             select: {
               orders: true,
@@ -40,7 +46,59 @@ async function getSeminar(slug: string): Promise<SeminarWithDetails | null> {
     },
   })
 
-  return seminar
+  if (!seminar) {
+    return null
+  }
+
+  const sessionsWithConfirmedCounts = seminar.sessions.map((session) => ({
+    ...session,
+    confirmedOrdersCount: session.orders?.filter(order => order.status === 'PAID').length || 0,
+  }))
+
+  return {
+    ...seminar,
+    sessions: sessionsWithConfirmedCounts,
+  } as SeminarWithDetails
+}
+
+function normalizeCancellationRules(input: unknown): CancellationRule[] {
+  if (!input) {
+    return []
+  }
+
+  if (Array.isArray(input)) {
+    return input
+      .map((rule) => {
+        if (!rule || typeof rule !== 'object') {
+          return null
+        }
+
+        const { daysBefore, refundRate } = rule as Record<string, unknown>
+        const parsedDays = typeof daysBefore === 'number' ? daysBefore : Number(daysBefore)
+        const parsedRefund = typeof refundRate === 'number' ? refundRate : Number(refundRate)
+
+        if (!Number.isFinite(parsedDays) || !Number.isFinite(parsedRefund)) {
+          return null
+        }
+
+        return {
+          daysBefore: parsedDays,
+          refundRate: parsedRefund,
+        }
+      })
+      .filter((rule): rule is CancellationRule => rule !== null)
+  }
+
+  if (typeof input === 'string') {
+    return normalizeCancellationRules(parseJsonSafe<unknown>(input, []))
+  }
+
+  if (typeof input === 'object') {
+    const candidate = (input as { rules?: unknown }).rules ?? Object.values(input as Record<string, unknown>)
+    return normalizeCancellationRules(candidate)
+  }
+
+  return []
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -77,12 +135,20 @@ export default async function SeminarDetailPage({
   }
 
   const tags = parseJsonSafe<string[]>(seminar.tags, [])
-  const cancellationRules = seminar.cancellationPolicy
-    ? parseJsonSafe<CancellationRule[]>(seminar.cancellationPolicy.rulesJson, [])
-    : []
+  const cancellationRules = normalizeCancellationRules(seminar.cancellationPolicy?.rulesJson)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-4">
+        <Link
+          href="/seminars"
+          className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          セミナー一覧に戻る
+        </Link>
+      </div>
+
       {/* ヘッダー */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {seminar.imageUrl && (
@@ -127,7 +193,8 @@ export default async function SeminarDetailPage({
         ) : (
           <div className="space-y-6">
             {seminar.sessions.map((session) => {
-              const remainingSeats = session.capacity - (session._count?.orders || 0)
+              const confirmedOrders = session.confirmedOrdersCount ?? 0
+              const remainingSeats = Math.max(session.capacity - confirmedOrders, 0)
               const isAlmostFull = remainingSeats <= 5
               
               return (
@@ -160,10 +227,10 @@ export default async function SeminarDetailPage({
                             定員 {session.capacity}名
                             {remainingSeats > 0 ? (
                               <span className={`ml-2 font-medium ${isAlmostFull ? 'text-orange-600' : 'text-green-600'}`}>
-                                （残り{remainingSeats}席）
+                                （残り{remainingSeats}席 / 確定 {confirmedOrders}件）
                               </span>
                             ) : (
-                              <span className="ml-2 font-medium text-red-600">（満席）</span>
+                              <span className="ml-2 font-medium text-red-600">（満席 / 確定 {confirmedOrders}件）</span>
                             )}
                           </span>
                         </div>

@@ -1,0 +1,740 @@
+[
+  {
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "insertId": "68cefb860000e1920338ea79",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:50.057746Z",
+    "severity": "INFO",
+    "labels": {
+      "scaling_reason": "DEPLOYMENT_ROLLOUT",
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-09-20T19:07:50.061166180Z"
+  },
+  {
+    "textPayload": "warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).",
+    "insertId": "68cefb8c0001602bd88311f4",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "location": "asia-northeast1",
+        "configuration_name": "seminar-web-system",
+        "service_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.090155Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.093380356Z"
+  },
+  {
+    "textPayload": "For more information, see: https://pris.ly/prisma-config",
+    "insertId": "68cefb8c0001603de84b32f6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.090173Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.093380356Z"
+  },
+  {
+    "textPayload": "Prisma schema loaded from prisma/schema.prisma",
+    "insertId": "68cefb8c0008c6e81064ff9d",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "service_name": "seminar-web-system",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.575208Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-09-20T19:07:56.577767507Z"
+  },
+  {
+    "textPayload": "Error: Prisma schema validation - (get-config wasm)",
+    "insertId": "68cefb8c0008e2070294d102",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "location": "asia-northeast1"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582151Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "Error code: P1012",
+    "insertId": "68cefb8c0008e20da01e9824",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582157Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "error: Error validating datasource `db`: the URL must start with the protocol `file:`.",
+    "insertId": "68cefb8c0008e2144be177fb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582164Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "  -->  prisma/schema.prisma:10",
+    "insertId": "68cefb8c0008e217f6afc3ba",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "asia-northeast1",
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system",
+        "service_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582167Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "   | ",
+    "insertId": "68cefb8c0008e21a6714046b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "location": "asia-northeast1",
+        "service_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582170Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": " 9 |   provider = \"sqlite\"",
+    "insertId": "68cefb8c0008e21da3c3be6e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "asia-northeast1",
+        "service_name": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582173Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "10 |   url      = env(\"DATABASE_URL\")",
+    "insertId": "68cefb8c0008e21f8800552c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582175Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "   | ",
+    "insertId": "68cefb8c0008e222d2501e81",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582178Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "Validation Error Count: 1",
+    "insertId": "68cefb8c0008e2277f990027",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582183Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "[Context: getConfig]",
+    "insertId": "68cefb8c0008e22ad7a257c0",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "location": "asia-northeast1",
+        "configuration_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582186Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "Prisma CLI Version : 6.15.0",
+    "insertId": "68cefb8c0008e22ec3350309",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "location": "asia-northeast1"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.582190Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "npm notice",
+    "insertId": "68cefb8c0009a952369bac4a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "project_id": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.633170Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "npm notice New major version of npm available! 10.8.2 -> 11.6.0",
+    "insertId": "68cefb8c0009a95a21050763",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.633178Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.0",
+    "insertId": "68cefb8c0009a95d30c29d66",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "location": "asia-northeast1",
+        "service_name": "seminar-web-system",
+        "configuration_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.633181Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "npm notice To update run: npm install -g npm@11.6.0",
+    "insertId": "68cefb8c0009a9615e99b258",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.633185Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "npm notice",
+    "insertId": "68cefb8c0009a964fba27d87",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "service_name": "seminar-web-system",
+        "configuration_name": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:56.633188Z",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-09-20T19:07:56.759385776Z"
+  },
+  {
+    "textPayload": "Container called exit(1).",
+    "insertId": "68cefb8d0005f97b8768720f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "configuration_name": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:57.391475736Z",
+    "severity": "WARNING",
+    "labels": {
+      "container_name": "webapp-1",
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-09-20T19:07:57.719124544Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe failed 1 time consecutively for container \"webapp-1\" on port 3000. The instance was not started.\nConnection failed with status CANCELLED.",
+    "insertId": "68cefb8d00077d85c482a6f3",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "seminar-web-system",
+        "location": "asia-northeast1",
+        "revision_name": "seminar-web-system-00007-gpx",
+        "configuration_name": "seminar-web-system",
+        "project_id": "seminar-web-system"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:57.490885Z",
+    "severity": "ERROR",
+    "labels": {
+      "instanceId": "0069c7a988062b0a205e7447909bb72f644a7b05b4083f98fcc0af4636f9835637c427d21aed1feddd6a1e85ad577008e7475fc7a59f1f67edc35e0ba6df7a8c12c02cbbc1fe1dd4a02cd744286a955aaa51"
+    },
+    "logName": "projects/seminar-web-system/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-09-20T19:07:57.719124544Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {
+        "code": 9,
+        "message": "Ready condition status changed to False for Revision seminar-web-system-00007-gpx with message: The user-provided container failed to start and listen on the port defined provided by the PORT=3000 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=seminar-web-system&resource=cloud_run_revision/service_name/seminar-web-system/revision_name/seminar-web-system-00007-gpx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22seminar-web-system%22%0Aresource.labels.revision_name%3D%22seminar-web-system-00007-gpx%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start"
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/seminar-web-system/revisions/seminar-web-system-00007-gpx",
+      "response": {
+        "metadata": {
+          "name": "seminar-web-system-00007-gpx",
+          "namespace": "141761675461",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/141761675461/revisions/seminar-web-system-00007-gpx",
+          "uid": "4c44195a-1c49-437a-8ff0-26a7d207483d",
+          "resourceVersion": "AAY/QE3jwPE",
+          "generation": 1,
+          "creationTimestamp": "2025-09-20T19:07:47.851605Z",
+          "labels": {
+            "client.knative.dev/nonce": "vzqamdmweh",
+            "serving.knative.dev/configuration": "seminar-web-system",
+            "serving.knative.dev/configurationGeneration": "7",
+            "serving.knative.dev/service": "seminar-web-system",
+            "serving.knative.dev/serviceUid": "8a9c50ba-8f90-496f-9369-f83e648a6f5f",
+            "serving.knative.dev/route": "seminar-web-system",
+            "cloud.googleapis.com/location": "asia-northeast1",
+            "run.googleapis.com/startupProbeType": "Default"
+          },
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "5",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "531.0.0",
+            "run.googleapis.com/cloudsql-instances": "seminar-web-system:asia-northeast1:seminar-web-postgres",
+            "serving.knative.dev/creator": "hamasyo222@gmail.com",
+            "run.googleapis.com/operation-id": "3e0184f1-bf89-4b8d-88c8-620f8110d694",
+            "run.googleapis.com/startup-cpu-boost": "true"
+          },
+          "ownerReferences": [
+            {
+              "kind": "Configuration",
+              "name": "seminar-web-system",
+              "uid": "14dabc75-8fd2-4383-9297-e17b98ab8df9",
+              "apiVersion": "serving.knative.dev/v1",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "spec": {
+          "containerConcurrency": 80,
+          "timeoutSeconds": 300,
+          "serviceAccountName": "141761675461-compute@developer.gserviceaccount.com",
+          "containers": [
+            {
+              "name": "webapp-1",
+              "image": "asia-northeast1-docker.pkg.dev/seminar-web-system/seminar-web-system/webapp@sha256:eb98c061fcd0b60a88b5d365e71a2e3a3409c098a79274db8e3798f0cc60bea0",
+              "ports": [
+                {
+                  "name": "http1",
+                  "containerPort": 3000
+                }
+              ],
+              "env": [
+                {
+                  "name": "BASE_URL",
+                  "value": "https://seminar-web-system-141761675461.asia-northeast1.run.app"
+                },
+                {
+                  "name": "TIMEZONE",
+                  "value": "Asia/Tokyo"
+                },
+                {
+                  "name": "ENABLE_JOBS",
+                  "value": "false"
+                },
+                {
+                  "name": "NEXTAUTH_URL",
+                  "value": "https://seminar-web-system-141761675461.asia-northeast1.run.app"
+                },
+                {
+                  "name": "MAIL_FROM_EMAIL",
+                  "value": "dev@example.com"
+                },
+                {
+                  "name": "MAIL_FROM_NAME",
+                  "value": "開発環境"
+                },
+                {
+                  "name": "MAIL_REPLY_TO",
+                  "value": "dev@example.com"
+                },
+                {
+                  "name": "INVOICE_ISSUER_NAME",
+                  "value": "開発会社"
+                },
+                {
+                  "name": "INVOICE_ISSUER_TAX_ID",
+                  "value": "T0000000000000"
+                },
+                {
+                  "name": "INVOICE_ISSUER_ADDRESS",
+                  "value": "東京都"
+                },
+                {
+                  "name": "INVOICE_ISSUER_TEL",
+                  "value": "00-0000-0000"
+                },
+                {
+                  "name": "DATABASE_URL",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-database-url"
+                    }
+                  }
+                },
+                {
+                  "name": "NEXTAUTH_SECRET",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-nextauth-secret"
+                    }
+                  }
+                },
+                {
+                  "name": "CRON_SECRET",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-cron-secret"
+                    }
+                  }
+                },
+                {
+                  "name": "KOMOJU_PUBLIC_KEY",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-komoju-public"
+                    }
+                  }
+                },
+                {
+                  "name": "KOMOJU_SECRET_KEY",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-komoju-secret"
+                    }
+                  }
+                },
+                {
+                  "name": "KOMOJU_CLIENT_ID",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-komoju-client"
+                    }
+                  }
+                },
+                {
+                  "name": "KOMOJU_WEBHOOK_SECRET",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-komoju-webhook"
+                    }
+                  }
+                },
+                {
+                  "name": "SENDGRID_API_KEY",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-sendgrid-key"
+                    }
+                  }
+                },
+                {
+                  "name": "ZOOM_CLIENT_ID",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-zoom-client"
+                    }
+                  }
+                },
+                {
+                  "name": "ZOOM_CLIENT_SECRET",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-zoom-secret"
+                    }
+                  }
+                },
+                {
+                  "name": "ZOOM_ACCOUNT_EMAIL",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "seminar-web-zoom-email"
+                    }
+                  }
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1",
+                  "memory": "1024Mi"
+                }
+              },
+              "startupProbe": {
+                "timeoutSeconds": 240,
+                "periodSeconds": 240,
+                "failureThreshold": 1,
+                "tcpSocket": {
+                  "port": 3000
+                }
+              }
+            }
+          ]
+        },
+        "status": {
+          "observedGeneration": 1,
+          "conditions": [
+            {
+              "type": "Ready",
+              "status": "False",
+              "reason": "HealthCheckContainerError",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=3000 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=seminar-web-system&resource=cloud_run_revision/service_name/seminar-web-system/revision_name/seminar-web-system-00007-gpx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22seminar-web-system%22%0Aresource.labels.revision_name%3D%22seminar-web-system-00007-gpx%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "lastTransitionTime": "2025-09-20T19:07:57.492465Z"
+            },
+            {
+              "type": "ContainerHealthy",
+              "status": "False",
+              "reason": "HealthCheckContainerError",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=3000 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=seminar-web-system&resource=cloud_run_revision/service_name/seminar-web-system/revision_name/seminar-web-system-00007-gpx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22seminar-web-system%22%0Aresource.labels.revision_name%3D%22seminar-web-system-00007-gpx%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "lastTransitionTime": "2025-09-20T19:07:57.492465Z"
+            },
+            {
+              "type": "ContainerReady",
+              "status": "True",
+              "message": "Container image import completed.",
+              "lastTransitionTime": "2025-09-20T19:07:48.349281Z"
+            },
+            {
+              "type": "ResourcesAvailable",
+              "status": "True",
+              "message": "Provisioning imported containers completed in 1.59s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "lastTransitionTime": "2025-09-20T19:07:49.937648Z"
+            },
+            {
+              "type": "Retry",
+              "status": "True",
+              "reason": "ImmediateRetry",
+              "message": "System will retry after 0:00:00 from lastTransitionTime for attempt 0.",
+              "lastTransitionTime": "2025-09-20T19:07:49.937648Z",
+              "severity": "Info"
+            }
+          ],
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=seminar-web-system&resource=cloud_run_revision/service_name/seminar-web-system/revision_name/seminar-web-system-00007-gpx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22seminar-web-system%22%0Aresource.labels.revision_name%3D%22seminar-web-system-00007-gpx%22",
+          "imageDigest": "asia-northeast1-docker.pkg.dev/seminar-web-system/seminar-web-system/webapp@sha256:eb98c061fcd0b60a88b5d365e71a2e3a3409c098a79274db8e3798f0cc60bea0",
+          "containerStatuses": [
+            {
+              "name": "webapp-1",
+              "imageDigest": "asia-northeast1-docker.pkg.dev/seminar-web-system/seminar-web-system/webapp@sha256:eb98c061fcd0b60a88b5d365e71a2e3a3409c098a79274db8e3798f0cc60bea0"
+            }
+          ]
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision"
+      }
+    },
+    "insertId": "-q1c4mcconq",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "seminar-web-system",
+        "location": "asia-northeast1",
+        "service_name": "seminar-web-system",
+        "configuration_name": "seminar-web-system",
+        "revision_name": "seminar-web-system-00007-gpx"
+      }
+    },
+    "timestamp": "2025-09-20T19:07:57.505270Z",
+    "severity": "ERROR",
+    "logName": "projects/seminar-web-system/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "receiveTimestamp": "2025-09-20T19:07:57.838128191Z"
+  }
+]

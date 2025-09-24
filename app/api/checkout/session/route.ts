@@ -99,8 +99,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     })
   } catch (error) {
     logger.error('Error creating checkout session', error)
+    const errorMessage =
+      error instanceof Error && error.message.includes('KOMOJU_SECRET_KEY')
+        ? '決済設定が未構成のため決済を開始できません。管理者にお問い合わせください。'
+        : '決済セッションの作成に失敗しました'
     return NextResponse.json(
-      { success: false, error: '決済セッションの作成に失敗しました' },
+      { success: false, error: errorMessage },
       { status: 500 }
     )
   }

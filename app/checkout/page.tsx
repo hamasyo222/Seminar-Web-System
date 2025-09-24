@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +13,7 @@ import type { SessionWithDetails, CancellationRule } from '@/types'
 
 type OrderFormData = z.infer<typeof orderFormSchema>
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session')
   const [session, setSession] = useState<SessionWithDetails | null>(null)
@@ -27,11 +27,11 @@ export default function CheckoutPage() {
     setValue,
     formState: { errors },
   } = useForm<OrderFormData>({
-    resolver: zodResolver(orderFormSchema),
+    resolver: zodResolver(orderFormSchema) as any,
     defaultValues: {
       sessionId: sessionId || '',
       tickets: [],
-      participants: [],
+      participants: [] as any,
       paymentMethod: 'CREDIT_CARD',
       agreeToTerms: false,
       agreeToCancellationPolicy: false,
@@ -178,9 +178,7 @@ export default function CheckoutPage() {
     )
   }
 
-  const cancellationRules: CancellationRule[] = session.seminar.cancellationPolicy
-    ? JSON.parse(session.seminar.cancellationPolicy.rulesJson)
-    : []
+  const cancellationRules: CancellationRule[] = []
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -577,5 +575,24 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+function CheckoutFallback() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<CheckoutFallback />}>
+      <CheckoutContent />
+    </Suspense>
   )
 }

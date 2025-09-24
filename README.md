@@ -1,397 +1,198 @@
 # セミナー管理システム
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5-green)](https://www.prisma.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3-38B2AC)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+セミナーの申込・決済・受付を一元管理するWebシステムです。
 
-本番運用可能なフル機能のセミナー管理システムです。Next.js 14、TypeScript、Prisma、PostgreSQLを使用して構築されています。
+## 機能概要
 
-🔗 **GitHub Repository**: [https://github.com/hamasyo222/Seminar-Web-System](https://github.com/hamasyo222/Seminar-Web-System)
+### 公開側機能
+- セミナー一覧・詳細表示
+- オンライン申込・決済（KOMOJU連携）
+- 申込確認・領収書発行
+- メール通知（申込確認、リマインダー等）
 
-## 🎯 主な機能
+### 管理側機能
+- **セミナー管理**: セミナーの作成・編集・公開設定
+- **セッション管理**: 開催回の管理、チケット種別設定
+- **注文管理**: 申込状況確認、決済管理、返金処理
+- **参加者管理**: 参加者一覧、受付チェック
+- **メール管理**: テンプレート編集、送信ログ確認
+- **クーポン管理**: 割引クーポンの作成・管理
+- **設定管理**: 管理者ユーザー、会社情報、決済・メール設定
 
-### 公開機能
-- **セミナー一覧・詳細表示**: カテゴリ/タグ/開催形式での絞り込み検索
-- **オンライン申込**: 代理申込対応、複数チケット種別選択
-- **決済機能**: KOMOJU統合（クレジットカード/コンビニ/PayPay）
-- **領収書**: 適格請求書形式のPDF自動生成、再発行対応
-- **カレンダー連携**: ICSファイル生成・ダウンロード
+## 技術スタック
 
-### 管理機能
-- **セミナー管理**: 開催回、チケット種別、在庫管理
-- **申込管理**: 注文一覧、ステータス管理、CSVエクスポート
-- **受付チェック**: 手動チェックイン、監査ログ
-- **返金処理**: カード返金、銀行振込対応
-- **メール管理**: テンプレート管理、自動送信
-- **クーポン管理**: 割引設定、使用制限
+- **フレームワーク**: Next.js 15.5.2 (App Router)
+- **言語**: TypeScript
+- **UI**: React 19.1.0 + Tailwind CSS
+- **データベース**: SQLite + Prisma ORM
+- **認証**: JWT (jose)
+- **決済**: KOMOJU
+- **メール**: SendGrid
+- **その他**: 
+  - React Hook Form (フォーム管理)
+  - Zod (バリデーション)
+  - React PDF (PDF生成)
+  - node-cron (定期処理)
 
-### 自動化機能
-- **Zoom連携**: ウェビナー自動登録（OAuth2）
-- **リマインダー**: 24時間前/1時間前自動送信
-- **未入金管理**: 期限切れ自動処理
-- **Webhook処理**: KOMOJU決済状態同期
+## セットアップ
 
-## 🛠 技術スタック
-
-- **Frontend**: Next.js 14 (App Router) + React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: PostgreSQL (開発時はSQLite)
-- **ORM**: Prisma
-- **Authentication**: カスタム実装（JWT）
-- **Payment**: KOMOJU Session API
-- **Email**: SendGrid
-- **PDF**: @react-pdf/renderer
-- **Calendar**: ics
-- **Validation**: Zod
-- **Job Scheduler**: node-cron
-
-## 📋 必要な環境
-
-- Node.js 18.x以上
-- npm または yarn
-- PostgreSQL（本番環境）またはSQLite（開発環境）
-
-## 🚀 セットアップ手順
-
-### 1. リポジトリのクローン
+### 1. 環境準備
 
 ```bash
+# リポジトリのクローン
 git clone <repository-url>
-cd seminar-web-system
-```
+cd Seminar-Web-System
 
-### 2. 依存関係のインストール
-
-```bash
+# 依存関係のインストール
 npm install
-```
 
-### 3. 環境変数の設定
-
-`.env.example`をコピーして`.env`を作成し、必要な値を設定します：
-
-```bash
+# 環境変数の設定
 cp .env.example .env
+# .envファイルを編集して必要な値を設定
 ```
 
-必須の環境変数：
-
-```env
-# Database（開発時はSQLiteを使用）
-DATABASE_URL="file:./dev.db"
-
-# App
-NEXTAUTH_SECRET="your-secret-key-here"
-BASE_URL="http://localhost:3000"
-TIMEZONE="Asia/Tokyo"
-
-# KOMOJU（テスト環境）
-KOMOJU_API_KEY="sk_test_xxx"
-KOMOJU_WEBHOOK_SECRET="whsec_xxx"
-KOMOJU_RETURN_URL="http://localhost:3000/thank-you"
-
-# SendGrid
-SENDGRID_API_KEY="SG.xxx"
-MAIL_FROM="セミナー運営 <noreply@your-domain.example>"
-
-# Zoom（任意）
-ZOOM_CLIENT_ID="your-zoom-client-id"
-ZOOM_CLIENT_SECRET="your-zoom-client-secret"
-ZOOM_REDIRECT_URI="http://localhost:3000/api/zoom/callback"
-ZOOM_ACCOUNT_EMAIL="ops@example.com"
-
-# 領収書発行者情報
-INVOICE_ISSUER_NAME="株式会社サンプル"
-INVOICE_ISSUER_TAX_ID="T1234567890123"
-INVOICE_ISSUER_ADDRESS="東京都渋谷区〇〇1-2-3"
-INVOICE_ISSUER_TEL="03-1234-5678"
-
-# 管理者認証
-ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="admin123456"
-
-# 暗号化キー
-ENCRYPTION_KEY="your-32-byte-encryption-key-here"
-```
-
-### 4. データベースのセットアップ
+### 2. データベース準備
 
 ```bash
 # マイグレーション実行
 npm run db:migrate
 
-# 初期データ投入
+# 初期データ投入（開発用）
 npm run db:seed
 ```
 
-### 5. 開発サーバーの起動
+### 3. 開発サーバー起動
 
 ```bash
 npm run dev
 ```
 
-http://localhost:3000 でアクセスできます。
+http://localhost:3000 でアクセス可能
 
-## 🧪 KOMOJUテスト環境での動作確認
+## 環境変数
 
-### 1. KOMOJUアカウントの準備
+主要な環境変数（詳細は `.env.example` 参照）:
 
-1. [KOMOJU](https://komoju.com/)でテストアカウントを作成
-2. ダッシュボードから以下を取得：
-   - APIキー（`sk_test_`で始まる）
-   - Webhook Secret（Webhook設定画面から）
+- `DATABASE_URL`: データベース接続URL
+- `NEXTAUTH_SECRET`: JWT署名用シークレット
+- `KOMOJU_PUBLIC_KEY/SECRET_KEY`: KOMOJU API認証情報
+- `SENDGRID_API_KEY`: SendGrid API Key
+- `MAIL_FROM_EMAIL`: 送信元メールアドレス
 
-### 2. Webhook設定
-
-KOMOJUダッシュボードでWebhookエンドポイントを設定：
+## ディレクトリ構造
 
 ```
-https://your-domain.example/api/webhooks/komoju
+├── app/                    # Next.js App Router
+│   ├── (public)/          # 公開ページレイアウト
+│   ├── admin/             # 管理画面
+│   ├── api/               # APIエンドポイント
+│   └── ...
+├── components/            # 共通コンポーネント
+├── lib/                   # ユーティリティ・ヘルパー
+│   ├── api/              # API関連ヘルパー
+│   ├── auth.ts           # 認証関連
+│   ├── mail.ts           # メール送信
+│   ├── komoju.ts         # 決済連携
+│   └── ...
+├── prisma/               # データベース定義
+│   ├── schema.prisma     # スキーマ定義
+│   └── seed.ts          # シードデータ
+├── types/                # TypeScript型定義
+└── utils/                # 汎用ユーティリティ
 ```
 
-イベントタイプ：
-- payment.captured
-- payment.authorized
-- payment.failed
-- payment.expired
-- payment.refunded
+## 主要なAPI
 
-### 3. テスト決済
+### 認証
+- `POST /api/auth/login` - ログイン
+- `POST /api/auth/logout` - ログアウト
 
-テストカード番号：
-- 成功: 4242 4242 4242 4242
-- 失敗: 4000 0000 0000 0002
+### セミナー・セッション
+- `GET /api/seminars` - セミナー一覧
+- `GET /api/sessions/:id` - セッション詳細
+- `POST /api/admin/seminars` - セミナー作成（管理者）
+- `PUT /api/admin/seminars/:id` - セミナー更新（管理者）
 
-コンビニ決済：テスト環境では即座に「captured」状態になります。
+### 注文・決済
+- `POST /api/orders` - 注文作成
+- `POST /api/checkout/session` - 決済セッション作成
+- `POST /api/webhooks/komoju` - KOMOJU Webhook
 
-## 🔗 Zoom OAuth連携手順
+### 管理機能
+- `/api/admin/*` - 管理者向けAPI（認証必須）
 
-### 1. Zoom App作成
+## セキュリティ
 
-1. [Zoom App Marketplace](https://marketplace.zoom.us/)でアプリ作成
-2. OAuth タイプを選択
-3. Redirect URL に `http://localhost:3000/api/zoom/callback` を設定
+- JWT認証によるアクセス制御
+- ロールベースの権限管理（SUPER_ADMIN, ADMIN, ACCOUNTANT, VIEWER）
+- CSRF対策
+- XSS対策（React自動エスケープ + 追加対策）
+- レート制限
+- 入力値バリデーション（Zod）
 
-### 2. 必要なスコープ
-
-- webinar:write
-- webinar:read
-- user:read
-
-### 3. 認証フロー
-
-1. 管理画面から「Zoom連携」をクリック
-2. Zoomにログインして認可
-3. トークンが自動保存される
-
-## 📱 主要な画面と動線
-
-### 利用者側
-
-1. **セミナー一覧** (`/seminars`)
-   - カテゴリ・タグで絞り込み
-   - 開催日順に表示
-
-2. **セミナー詳細** (`/seminars/[slug]`)
-   - 開催回選択
-   - チケット種別確認
-   - 申込ボタン
-
-3. **申込フォーム** (`/checkout`)
-   - チケット選択
-   - 参加者情報入力
-   - 支払方法選択
-   - 領収書名義設定
-
-4. **支払完了** (`/thank-you`)
-   - 注文内容確認
-   - 次のステップ案内
-
-### 管理者側
-
-1. **ログイン**
-   - Email: admin@example.com
-   - Password: admin123456
-
-2. **ダッシュボード** (`/admin`)
-   - 売上統計
-   - 直近の申込
-   - 開催予定
-
-3. **セミナー管理** (`/admin/seminars`)
-   - CRUD操作
-   - 開催回設定
-   - チケット管理
-
-4. **受付モード** (`/admin/checkin`)
-   - QRコード読取（実装予定）
-   - 手動チェックイン
-   - 参加者検索
-
-## 🔧 開発コマンド
+## 開発コマンド
 
 ```bash
-# 開発サーバー起動
+# 開発サーバー
 npm run dev
 
 # ビルド
 npm run build
 
-# 本番サーバー起動
+# 本番サーバー
 npm start
 
-# Lintチェック
+# リント
 npm run lint
 
-# データベース関連
-npm run db:migrate    # マイグレーション実行
-npm run db:seed       # シードデータ投入
-npm run db:studio     # Prisma Studio起動
-npm run db:reset      # データベースリセット
+# データベース操作
+npm run db:push      # スキーマ反映
+npm run db:migrate   # マイグレーション
+npm run db:seed      # シード実行
+npm run db:studio    # Prisma Studio起動
+npm run db:reset     # リセット
 ```
 
-## 🏗 プロジェクト構造
-
-```
-/app                    # Next.js App Router
-  /(public)            # 公開ページレイアウト
-  /seminars            # セミナー関連ページ
-  /checkout            # 申込ページ
-  /admin               # 管理画面
-  /api                 # APIルート
-    /checkout          # 決済API
-    /webhooks          # Webhook受信
-    /zoom              # Zoom連携
-    /cron              # 定期ジョブ
-/components            # 共通コンポーネント
-/lib                   # ユーティリティ
-  auth.ts             # 認証
-  komoju.ts           # KOMOJU統合
-  mail.ts             # メール送信
-  pdf.ts              # PDF生成
-  ics.ts              # カレンダー
-  zoom.ts             # Zoom API
-/prisma
-  schema.prisma       # データベーススキーマ
-  seed.ts             # 初期データ
-/public               # 静的ファイル
-/types                # TypeScript型定義
-/utils                # 汎用ユーティリティ
-```
-
-## ⚡ パフォーマンス最適化
-
-- Server Componentsを活用
-- 画像の最適化（next/image）
-- データベースクエリの最適化
-- キャッシュ戦略（revalidate）
-
-## 🔒 セキュリティ対策
-
-- CSRF対策
-- XSS対策（React自動エスケープ）
-- SQLインジェクション対策（Prisma）
-- Webhook署名検証
-- 環境変数での機密情報管理
-
-## 📈 監視・ログ
-
-- 構造化ログ（order_id, session_id等で追跡可能）
-- エラートラッキング
-- パフォーマンス監視
-- Webhook処理の監査ログ
-
-## 🚢 デプロイ
-
-### GitHub Actions CI/CD
-
-このプロジェクトは、GitHub Actionsを使用した自動CI/CDパイプラインが設定されています。
-
-- **CI**: プッシュ時に自動でテスト、Lint、ビルドを実行
-- **CD**: mainブランチへのプッシュ時にVercelへ自動デプロイ
-
-必要なGitHub Secrets:
-- `VERCEL_TOKEN`: Vercelのアクセストークン
-- `VERCEL_ORG_ID`: VercelのOrganization ID
-- `VERCEL_PROJECT_ID`: VercelのProject ID
-- `DATABASE_URL`: 本番データベースのURL
-- `NEXTAUTH_SECRET`: NextAuthのシークレット
+## デプロイ
 
 ### Vercel
 
-```bash
-# 1. Vercelプロジェクトを作成
-vercel
-
-# 2. 環境変数を設定（Vercel Dashboard）
-# DATABASE_URL, NEXTAUTH_SECRET, KOMOJU_API_KEY, etc.
-
-# 3. デプロイ
-vercel --prod
-```
+1. Vercelにプロジェクトをインポート
+2. 環境変数を設定
+3. デプロイ
 
 ### Docker
 
 ```bash
-# Dockerイメージをビルド
+# イメージビルド
 docker build -t seminar-system .
 
-# ローカルで実行
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://..." \
-  -e NEXTAUTH_SECRET="..." \
-  seminar-system
+# コンテナ起動
+docker run -p 3000:3000 --env-file .env seminar-system
 ```
 
-### 本番環境の環境変数
+## トラブルシューティング
 
-本番環境では、以下の環境変数を設定してください：
+### データベース接続エラー
+- `DATABASE_URL`が正しく設定されているか確認
+- SQLiteファイルの権限を確認
 
-```env
-# データベース
-DATABASE_URL="postgresql://user:password@host:5432/dbname"
+### メール送信エラー
+- SendGrid APIキーの確認
+- 送信元メールアドレスの認証状態確認
 
-# 認証
-NEXTAUTH_SECRET="your-nextauth-secret"
-NEXTAUTH_URL="https://your-domain.com"
+### 決済エラー
+- KOMOJU APIキーの確認
+- Webhook URLの設定確認
 
-# 決済（KOMOJU）
-KOMOJU_API_KEY="your-komoju-api-key"
-KOMOJU_WEBHOOK_SECRET="your-webhook-secret"
+## ライセンス
 
-# メール（SendGrid）
-SENDGRID_API_KEY="your-sendgrid-api-key"
-SENDGRID_FROM_EMAIL="noreply@your-domain.com"
-SENDGRID_FROM_NAME="セミナー事務局"
+MIT License
 
-# Zoom
-ZOOM_CLIENT_ID="your-zoom-client-id"
-ZOOM_CLIENT_SECRET="your-zoom-client-secret"
-ZOOM_REDIRECT_URI="https://your-domain.com/api/zoom/callback"
+## 貢献
 
-# その他
-BASE_URL="https://your-domain.com"
-TIMEZONE="Asia/Tokyo"
-```
-
-## 🤝 コントリビューション
-
-1. Forkする
-2. Feature branchを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
-4. Branchにプッシュ (`git push origin feature/amazing-feature`)
-5. Pull Requestを作成
-
-## 📝 ライセンス
-
-This project is licensed under the MIT License.
-
-## 🙏 謝辞
-
-- Next.js team
-- Vercel
-- KOMOJU
-- SendGrid
-- その他すべてのOSSコントリビューター
+1. このリポジトリをフォーク
+2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成

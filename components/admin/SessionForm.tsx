@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { sessionSchema } from '@/lib/validations'
+import { sessionSchema } from '@/lib/validations/session'
 import { toast } from 'react-hot-toast'
 import { Save } from 'lucide-react'
 import type { Session } from '@prisma/client'
@@ -28,7 +28,7 @@ export default function SessionForm({ seminarId, session }: SessionFormProps) {
     watch,
     formState: { errors },
   } = useForm<SessionFormData>({
-    resolver: zodResolver(sessionSchema),
+    resolver: zodResolver(sessionSchema) as Resolver<SessionFormData>,
     defaultValues: {
       seminarId,
       title: session?.title || '',
@@ -49,7 +49,7 @@ export default function SessionForm({ seminarId, session }: SessionFormProps) {
   const watchFormat = watch('format')
   const watchZoomType = watch('zoomType')
 
-  const onSubmit = async (data: SessionFormData) => {
+  const onSubmit: SubmitHandler<SessionFormData> = async (data) => {
     setLoading(true)
 
     try {

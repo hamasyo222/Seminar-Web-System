@@ -3,10 +3,33 @@ import { prisma } from './prisma'
 import { logger } from './logger'
 import type { EmailData } from '@/types'
 
-// SendGrid APIキーを設定
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
+const SENDGRID_ENABLED = typeof SENDGRID_API_KEY === 'string' && SENDGRID_API_KEY.trim().length > 0
 
-const DEFAULT_FROM = process.env.MAIL_FROM || 'noreply@example.com'
+if (SENDGRID_ENABLED) {
+  sgMail.setApiKey(SENDGRID_API_KEY)
+} else {
+  logger.warn('SENDGRID_API_KEY is not set. Emails will be logged as FAILED without being sent.')
+}
+
+const FROM_EMAIL = process.env.MAIL_FROM_EMAIL || process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com'
+const FROM_NAME = process.env.MAIL_FROM_NAME || 'セミナー事務局'
+const REPLY_TO_EMAIL = process.env.MAIL_REPLY_TO || FROM_EMAIL
+
+const mapRecipients = (addresses?: string[]):
+  | { email: string } 
+  | Array<{ email: string }>
+  | undefined => {
+  if (!addresses || addresses.length === 0) {
+    return undefined
+  }
+
+  if (addresses.length === 1) {
+    return { email: addresses[0] }
+  }
+
+  return addresses.map((email) => ({ email }))
+}
 
 // メールテンプレートコード
 export const EMAIL_TEMPLATES = {
@@ -23,10 +46,11 @@ export const EMAIL_TEMPLATES = {
 
 // メール送信
 export async function sendEmail(data: EmailData): Promise<void> {
+  let htmlContent = data.htmlContent || ''
+  let textContent = data.textContent || ''
+  let subject: string = data.subject ?? 'セミナー通知'
+
   try {
-    let htmlContent = data.htmlContent || ''
-    let textContent = data.textContent || ''
-    let subject = data.subject
 
     // テンプレートを使用する場合
     if (data.templateCode) {
@@ -44,12 +68,26 @@ export async function sendEmail(data: EmailData): Promise<void> {
       subject = replaceVariables(template.subject, data.variables || {})
     }
 
+    if (!subject || subject.trim().length === 0) {
+      subject = data.subject || 'セミナー通知'
+    }
+
+    const toField = mapRecipients(data.to)
+    if (!toField) {
+      throw new Error('送信先が指定されていません')
+    }
+
+    if (!SENDGRID_ENABLED) {
+      throw new Error('SENDGRID_API_KEY is not configured')
+    }
+
     // SendGridメッセージ作成
     const msg: sgMail.MailDataRequired = {
-      to: data.to,
-      cc: data.cc,
-      bcc: data.bcc,
-      from: DEFAULT_FROM,
+      to: toField,
+      cc: mapRecipients(data.cc),
+      bcc: mapRecipients(data.bcc),
+      from: { email: FROM_EMAIL, name: FROM_NAME },
+      replyTo: { email: REPLY_TO_EMAIL, name: FROM_NAME },
       subject,
       text: textContent,
       html: htmlContent,
@@ -67,9 +105,9 @@ export async function sendEmail(data: EmailData): Promise<void> {
     // ログ記録
     await prisma.emailLog.create({
       data: {
-        to: data.to,
-        cc: data.cc || [],
-        bcc: data.bcc || [],
+        to: JSON.stringify(data.to),
+        cc: JSON.stringify(data.cc || []),
+        bcc: JSON.stringify(data.bcc || []),
         subject,
         templateCode: data.templateCode,
         status: 'SENT',
@@ -88,10 +126,10 @@ export async function sendEmail(data: EmailData): Promise<void> {
     // エラーログ記録
     await prisma.emailLog.create({
       data: {
-        to: data.to,
-        cc: data.cc || [],
-        bcc: data.bcc || [],
-        subject: data.subject,
+        to: JSON.stringify(data.to),
+        cc: JSON.stringify(data.cc || []),
+        bcc: JSON.stringify(data.bcc || []),
+        subject,
         templateCode: data.templateCode,
         status: 'FAILED',
         error: error instanceof Error ? error.message : String(error),
@@ -100,7 +138,7 @@ export async function sendEmail(data: EmailData): Promise<void> {
 
     logger.error('Failed to send email', error, {
       to: data.to,
-      subject: data.subject,
+      subject,
       templateCode: data.templateCode
     })
 

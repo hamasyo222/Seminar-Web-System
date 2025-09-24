@@ -54,6 +54,12 @@ async function getDashboardStats() {
     },
     include: {
       seminar: true,
+      orders: {
+        select: {
+          id: true,
+          status: true,
+        }
+      },
       _count: {
         select: { orders: true }
       }
@@ -89,7 +95,10 @@ async function getDashboardStats() {
     totalRevenue: totalRevenue._sum.total || 0,
     todayOrders,
     todayRevenue: todayRevenue._sum.total || 0,
-    upcomingSessions,
+    upcomingSessions: upcomingSessions.map(session => ({
+      ...session,
+      confirmedOrdersCount: session.orders?.filter(order => order.status === 'PAID').length || 0,
+    })),
     recentOrders,
     paymentMethodBreakdown: paymentMethodStats.map(stat => ({
       method: stat.paymentMethod || 'UNKNOWN',
@@ -175,7 +184,7 @@ export default async function AdminDashboard() {
                         {session.seminar.title}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {formatJST(session.startAt)} • {session._count.orders}件の申込
+                        {formatJST(session.startAt)} • 決済完了 {session.confirmedOrdersCount ?? 0}件（申込 {session._count.orders}件）
                       </p>
                     </div>
                     <Link

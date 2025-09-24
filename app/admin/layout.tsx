@@ -11,8 +11,11 @@ import {
   Ticket,
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Activity
 } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -26,6 +29,7 @@ const menuItems = [
   { href: '/admin/checkin', icon: CheckSquare, label: '受付チェック' },
   { href: '/admin/emails', icon: Mail, label: 'メール管理' },
   { href: '/admin/coupons', icon: Ticket, label: 'クーポン管理' },
+  { href: '/admin/audit-logs', icon: Activity, label: '監査ログ' },
   { href: '/admin/settings', icon: Settings, label: '設定' },
 ]
 

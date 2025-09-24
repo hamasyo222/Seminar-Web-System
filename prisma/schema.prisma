@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -20,6 +20,9 @@ model AdminUser {
   isActive        Boolean   @default(true)
   mfaEnabled      Boolean   @default(false)
   mfaSecret       String?
+  resetToken      String?
+  resetTokenExpiry DateTime?
+  lastPasswordChange DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -89,6 +92,7 @@ model Session {
 
   ticketTypes     TicketType[]
   orders          Order[]
+  surveys         Survey[]  @relation("SessionSurveys")
 
   @@map("sessions")
 }
@@ -173,6 +177,9 @@ model Order {
   invoiceNote             String?   // 但し書き
   
   notes           String?    // 備考
+  ipAddress       String?
+  userAgent       String?
+  referer         String?
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -184,6 +191,7 @@ model Order {
   payments        Payment[]
   refunds         Refund[]
   invoices        Invoice[]
+  survey          Survey?   @relation("OrderSurvey")
 
   @@index([email])
   @@index([sessionId])
@@ -505,6 +513,18 @@ enum DiscountType {
   PERCENTAGE
 }
 
+// ブラックリストIP
+model BlacklistedIp {
+  id        String   @id @default(cuid())
+  ipAddress String   @unique @map("ip_address")
+  reason    String?
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("blacklisted_ips")
+  @@index([ipAddress], map: "blacklisted_ips_ip_address_idx")
+}
+
 // 受付ログ（監査用）
 model CheckInLog {
   id              String    @id @default(cuid())
@@ -553,4 +573,57 @@ enum JobStatus {
   RUNNING
   COMPLETED
   FAILED
+}
+
+// 監査ログ
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id")
+  userId      String?  @map("user_id")
+  userName    String?  @map("user_name")
+  userEmail   String?  @map("user_email")
+  userRole    String?  @map("user_role")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  requestId   String?  @map("request_id")
+  sessionId   String?  @map("session_id")
+  oldValue    String?  @map("old_value")
+  newValue    String?  @map("new_value")
+  metadata    String   @default("{}")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+  @@index([action], map: "audit_logs_action_idx")
+  @@index([entityType, entityId], map: "audit_logs_entity_type_entity_id_idx")
+  @@index([userId], map: "audit_logs_user_id_idx")
+  @@index([createdAt], map: "audit_logs_created_at_idx")
+  @@index([ipAddress], map: "audit_logs_ip_address_idx")
+}
+
+// 参加者アンケート
+model Survey {
+  id                 String   @id @default(cuid())
+  orderId            String   @map("order_id")
+  sessionId          String   @map("session_id")
+  rating             Int
+  satisfactionLevel  String?  @map("satisfaction_level")
+  contentRating      Int?     @map("content_rating")
+  presentationRating Int?     @map("presentation_rating")
+  organizationRating Int?     @map("organization_rating")
+  wouldRecommend     Boolean  @map("would_recommend") @default(false)
+  improvements       String?
+  futureTopics       String?  @map("future_topics")
+  otherComments      String?  @map("other_comments")
+  submittedAt        DateTime @default(now()) @map("submitted_at")
+
+  order   Order   @relation("OrderSurvey", fields: [orderId], references: [id])
+  session Session @relation("SessionSurveys", fields: [sessionId], references: [id])
+
+  @@map("surveys")
+  @@unique([orderId], map: "surveys_order_id_key")
+  @@index([sessionId], map: "surveys_session_id_idx")
+  @@index([submittedAt], map: "surveys_submitted_at_idx")
 }

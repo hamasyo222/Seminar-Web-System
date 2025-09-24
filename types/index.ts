@@ -8,6 +8,7 @@ import {
 export interface SeminarWithDetails extends Seminar {
   sessions: SessionWithDetails[]
   cancellationPolicy: CancellationPolicy | null
+  instructorName?: string | null
 }
 
 // セッション詳細（関連データ含む）
@@ -17,13 +18,15 @@ export interface SessionWithDetails extends Session {
   _count?: {
     orders: number
   }
+  orders?: Array<Pick<Order, 'id' | 'status'>>
+  confirmedOrdersCount?: number
 }
 
 // 注文詳細（関連データ含む）
 export interface OrderWithDetails extends Order {
-  session: Session & { seminar: Seminar }
+  session: Session & { seminar: Seminar; ticketTypes?: TicketType[] }
   orderItems: (OrderItem & { ticketType: TicketType })[]
-  participants: Participant[]
+  participants: (Participant & { zoomRegistrations: ZoomRegistration[] })[]
   payments: Payment[]
   refunds: Refund[]
   invoices: Invoice[]
@@ -106,7 +109,7 @@ export interface EmailData {
   to: string[]
   cc?: string[]
   bcc?: string[]
-  subject: string
+  subject?: string
   templateCode?: string
   variables?: Record<string, any>
   htmlContent?: string

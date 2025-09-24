@@ -182,3 +182,13 @@ export function generateRefundsCSV(refunds: any[]): string {
 
   return BOM + csvContent
 }
+
+// 汎用CSV生成関数
+export function generateCSV(headers: string[], rows: any[][]): string {
+  const csvContent = [
+    headers.map(h => escapeCSV(h)).join(','),
+    ...rows.map(row => row.map(cell => escapeCSV(cell)).join(','))
+  ].join('\n')
+
+  return BOM + csvContent
+}

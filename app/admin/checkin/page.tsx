@@ -69,7 +69,7 @@ function CheckInContent() {
               ? {
                   ...p,
                   attendanceStatus: isCheckedIn ? 'NOT_CHECKED_IN' : 'CHECKED_IN',
-                  checkedInAt: isCheckedIn ? null : new Date().toISOString()
+                  checkedInAt: isCheckedIn ? null : new Date()
                 }
               : p
           )

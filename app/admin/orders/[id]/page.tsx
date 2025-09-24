@@ -233,11 +233,6 @@ export default async function OrderDetailPage({
                       }`}>
                         {getAttendanceStatus(participant.attendanceStatus)}
                       </span>
-                      {participant.zoomRegistrations.length > 0 && (
-                        <span className="text-xs text-green-600">
-                          <CheckCircle className="w-4 h-4" />
-                        </span>
-                      )}
                     </div>
                   </div>
                   {participant.checkedInAt && (

@@ -53,12 +53,7 @@ export async function sendReminder24h() {
         try {
           // ICSファイルを生成
           const icsContent = await generateICS({
-            session: {
-              ...session,
-              seminar: session.seminar,
-              ticketTypes: [],
-              _count: undefined
-            },
+            session,
             participantName: participant.name,
             participantEmail: participant.email,
             orderNumber: participant.order.orderNumber,

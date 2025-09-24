@@ -1,10 +1,10 @@
 import { createEvent, EventAttributes } from 'ics'
 import { toJST } from './date'
 import { logger } from './logger'
-import type { SessionWithDetails } from '@/types'
+import type { Seminar, Session } from '@prisma/client'
 
 export interface ICSData {
-  session: SessionWithDetails
+  session: Session & { seminar: Seminar }
   participantName: string
   participantEmail: string
   orderNumber: string

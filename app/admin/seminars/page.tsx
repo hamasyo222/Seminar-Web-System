@@ -119,14 +119,12 @@ export default async function SeminarsPage() {
                       >
                         <Edit className="w-4 h-4" />
                       </Link>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => {
-                          // TODO: アーカイブ処理
-                        }}
+                      <span
+                        className="text-gray-300 cursor-not-allowed"
+                        title="アーカイブ機能は準備中です"
                       >
                         <Archive className="w-4 h-4" />
-                      </button>
+                      </span>
                     </div>
                   </td>
                 </tr>

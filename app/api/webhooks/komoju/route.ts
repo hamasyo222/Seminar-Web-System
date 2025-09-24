@@ -51,7 +51,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         data: {
           eventId: event.id,
           eventType: event.type,
-          payload: event,
+          payload: JSON.parse(JSON.stringify(event)),
           signature,
         }
       })
@@ -122,12 +122,25 @@ async function handlePaymentCaptured(event: KomojuWebhookPayload) {
   const order = await prisma.order.findFirst({
     where: { orderNumber: externalOrderNum },
     include: {
-      participants: true,
+      participants: {
+        include: {
+          zoomRegistrations: true
+        }
+      },
       session: {
         include: {
-          seminar: true
+          seminar: true,
+          ticketTypes: true
         }
-      }
+      },
+      orderItems: {
+        include: {
+          ticketType: true
+        }
+      },
+      payments: true,
+      refunds: true,
+      invoices: true
     }
   })
 
@@ -199,7 +212,28 @@ async function handlePaymentAuthorized(event: KomojuWebhookPayload) {
   })
 
   const order = await prisma.order.findFirst({
-    where: { orderNumber: externalOrderNum }
+    where: { orderNumber: externalOrderNum },
+    include: {
+      participants: {
+        include: {
+          zoomRegistrations: true
+        }
+      },
+      session: {
+        include: {
+          seminar: true,
+          ticketTypes: true
+        }
+      },
+      orderItems: {
+        include: {
+          ticketType: true
+        }
+      },
+      payments: true,
+      refunds: true,
+      invoices: true
+    }
   })
 
   if (!order) {
@@ -240,7 +274,28 @@ async function handlePaymentFailed(event: KomojuWebhookPayload) {
   })
 
   const order = await prisma.order.findFirst({
-    where: { orderNumber: externalOrderNum }
+    where: { orderNumber: externalOrderNum },
+    include: {
+      participants: {
+        include: {
+          zoomRegistrations: true
+        }
+      },
+      session: {
+        include: {
+          seminar: true,
+          ticketTypes: true
+        }
+      },
+      orderItems: {
+        include: {
+          ticketType: true
+        }
+      },
+      payments: true,
+      refunds: true,
+      invoices: true
+    }
   })
 
   if (!order) {
@@ -297,7 +352,28 @@ async function handlePaymentExpired(event: KomojuWebhookPayload) {
   })
 
   const order = await prisma.order.findFirst({
-    where: { orderNumber: externalOrderNum }
+    where: { orderNumber: externalOrderNum },
+    include: {
+      participants: {
+        include: {
+          zoomRegistrations: true
+        }
+      },
+      session: {
+        include: {
+          seminar: true,
+          ticketTypes: true
+        }
+      },
+      orderItems: {
+        include: {
+          ticketType: true
+        }
+      },
+      payments: true,
+      refunds: true,
+      invoices: true
+    }
   })
 
   if (!order) {
@@ -334,7 +410,28 @@ async function handlePaymentRefunded(event: KomojuWebhookPayload) {
   })
 
   const order = await prisma.order.findFirst({
-    where: { orderNumber: externalOrderNum }
+    where: { orderNumber: externalOrderNum },
+    include: {
+      participants: {
+        include: {
+          zoomRegistrations: true
+        }
+      },
+      session: {
+        include: {
+          seminar: true,
+          ticketTypes: true
+        }
+      },
+      orderItems: {
+        include: {
+          ticketType: true
+        }
+      },
+      payments: true,
+      refunds: true,
+      invoices: true
+    }
   })
 
   if (!order) {

@@ -2,13 +2,20 @@ import { createHmac } from 'crypto'
 import { logger } from './logger'
 import type { KomojuSessionResponse, KomojuWebhookPayload } from '@/types'
 
-const KOMOJU_API_BASE = 'https://komoju.com/api/v1'
-const KOMOJU_API_KEY = process.env.KOMOJU_API_KEY!
-const KOMOJU_WEBHOOK_SECRET = process.env.KOMOJU_WEBHOOK_SECRET!
+const KOMOJU_API_BASE = process.env.KOMOJU_API_URL || 'https://komoju.com/api/v1'
+const KOMOJU_SECRET_KEY = process.env.KOMOJU_SECRET_KEY || process.env.KOMOJU_API_KEY || ''
+const KOMOJU_WEBHOOK_SECRET = process.env.KOMOJU_WEBHOOK_SECRET || ''
+
+function assertSecretKey(action: string): void {
+  if (!KOMOJU_SECRET_KEY) {
+    throw new Error(`KOMOJU_SECRET_KEY is not configured. Unable to ${action}.`)
+  }
+}
 
 // Basic認証用のヘッダーを生成
 function getAuthHeader(): string {
-  return `Basic ${Buffer.from(`${KOMOJU_API_KEY}:`).toString('base64')}`
+  assertSecretKey('communicate with KOMOJU API')
+  return `Basic ${Buffer.from(`${KOMOJU_SECRET_KEY}:`).toString('base64')}`
 }
 
 // KOMOJUセッション作成
@@ -32,6 +39,8 @@ export async function createKomojuSession(params: {
   } = params
 
   try {
+    assertSecretKey('create a KOMOJU session')
+
     const response = await fetch(`${KOMOJU_API_BASE}/sessions`, {
       method: 'POST',
       headers: {
@@ -80,6 +89,8 @@ export async function createKomojuSession(params: {
 // KOMOJUセッション取得
 export async function getKomojuSession(sessionId: string): Promise<KomojuSessionResponse> {
   try {
+    assertSecretKey('retrieve KOMOJU session details')
+
     const response = await fetch(`${KOMOJU_API_BASE}/sessions/${sessionId}`, {
       headers: {
         'Authorization': getAuthHeader(),
@@ -106,6 +117,8 @@ export async function createKomojuRefund(params: {
   const { paymentId, amount, description } = params
 
   try {
+    assertSecretKey('create a KOMOJU refund')
+
     const body: any = {}
     if (amount !== undefined) body.amount = amount
     if (description) body.description = description
@@ -148,6 +161,11 @@ export function verifyWebhookSignature(
   payload: string,
   signature: string
 ): boolean {
+  if (!KOMOJU_WEBHOOK_SECRET) {
+    logger.warn('KOMOJU_WEBHOOK_SECRET is not configured. Webhook signature validation skipped.')
+    return false
+  }
+
   try {
     const expectedSignature = createHmac('sha256', KOMOJU_WEBHOOK_SECRET)
       .update(payload)
